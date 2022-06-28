@@ -66,14 +66,21 @@ public class MainActivity extends AppCompatActivity {
         initView();
         initRecyclerView();
         if (!isConnected()) {
+            /*An additional point 3 is implemented here.
+             In the absence of the Internet,
+             I download a list of the last 30 pokemon from the database.*/
             Toast.makeText(mContext, "No Internet Access", Toast.LENGTH_SHORT).show();
             readPokemonFromDatabase();
             mAdapter.notifyDataSetChanged();
         } else getPokemonNamesAndUrls(mLimit, mOffset);
+        /*The getPokemonNamesAndUrls() method returns an array
+        containing objects with the name and url of the pokemon.*/
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
+            /*Point 3 is implemented here, with page-by-page loading of pokemon when the end of the list is reached,
+            or the beginning of the list, with the exception of the start page and the last one itself.*/
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (!recyclerView.canScrollVertically(1) && dy > 0) {
                     getPokemonNamesAndUrlsNextOrPrev(mNextPage);
@@ -87,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
             Random r = new Random();
             mOffset = r.nextInt(1124) + 1;
             getPokemonNamesAndUrls(mLimit, mOffset);
+            /*Point 4 is implemented here, where when you click on the button,
+            30 pokémon are loaded in order, from a list of 1124 pokémon.
+            In this case, the random digit is the offset.*/
         });
 
         mAdapter.setOnCLickListener(new PokemonClickListener() {
@@ -102,9 +112,13 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("PokemonDefense", mPokemonList.get(position).getDefense());
                 intent.putExtra("PokemonImage", mPokemonList.get(position).getUrl());
                 startActivity(intent);
+                /*Point 2 is implemented here*/
             }
         });
 
+        /*Here implemented additional point 2. I could not implement part of point 5,
+        where it was necessary to sort by two or more parameters.
+        Made by only one parameter sorting*/
         mAttack.setOnClickListener(view -> {
             if (mAttack.isChecked())
                 Collections.sort(mPokemonList, Pokemon.PokemonBestAttack);
@@ -181,6 +195,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<PokemonList> call, Response<PokemonList> response) {
 
+                /*Getting the url of pokemon(first 30)*/
+
                 mPokemonNamesAndUrlsList.clear();
                 mPokemonList.clear();
                 mAdapter.notifyDataSetChanged();
@@ -205,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(Call<PokemonList> call, Response<PokemonList> response) {
+
+                /*Getting the url of pokemon 30 next or 30 previous*/
 
                 mPokemonNamesAndUrlsList.clear();
                 mPokemonList.clear();
@@ -260,6 +278,10 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter.notifyDataSetChanged();
 
                     db.PokeDao().insertPokemon(pokemon);
+
+                 /*Point 1 and additional point 3 are implemented here.
+                 A list of 30 pokemon is loaded and they are saved to the database,
+                 in case there is no internet.*/
                 }
 
 
@@ -280,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
         mProgressBar.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
+
+        /*Here implemented additional point 3*/
     }
 
     private boolean isConnected() {
